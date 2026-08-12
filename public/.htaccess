@@ -1,0 +1,15 @@
+DirectoryIndex index.php
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Kalau request bukan file/folder yang ada, arahkan ke index.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+# Jangan izinkan akses langsung ke file .env kalau tidak sengaja ke-copy ke public
+<FilesMatch "^\.env">
+    Require all denied
+</FilesMatch>

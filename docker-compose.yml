@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      APP_NAME: "TTD Digital - COM SMKN 2 Pinrang"
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_URL: http://localhost:8080
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: ttd_digital
+      DB_USER: ttd_user
+      DB_PASS: ttd_pass
+      SESSION_NAME: ttd_digital_session
+      SESSION_LIFETIME: 7200
+      DEFAULT_ADMIN_USERNAME: admin
+      DEFAULT_ADMIN_PASSWORD: admin123
+    volumes:
+      - storage_data:/var/www/html/storage
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ttd_digital
+      MYSQL_USER: ttd_user
+      MYSQL_PASSWORD: ttd_pass
+      MYSQL_ROOT_PASSWORD: change_this_root_password
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./database/migrations.sql:/docker-entrypoint-initdb.d/01-migrations.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pchange_this_root_password"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  storage_data:
+  db_data:

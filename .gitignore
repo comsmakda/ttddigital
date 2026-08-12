@@ -1,0 +1,8 @@
+/vendor/
+/.env
+/storage/qrcodes/*
+!/storage/qrcodes/.gitkeep
+/storage/logs/*
+!/storage/logs/.gitkeep
+/storage/.seeded
+.DS_Store

@@ -1,0 +1,10 @@
+.git
+.gitignore
+.env
+vendor
+node_modules
+storage/qrcodes/*
+!storage/qrcodes/.gitkeep
+storage/logs/*
+!storage/logs/.gitkeep
+*.md
