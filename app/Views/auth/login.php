@@ -6,10 +6,10 @@
   <?= csrf_field() ?>
 
   <div class="field-group">
-    <label class="field-label" for="username">Username</label>
+    <label class="field-label" for="username">Email atau NIA</label>
     <div class="field-wrap">
       <input class="field-input" type="text" id="username" name="username"
-             placeholder="admin" required autofocus autocomplete="username">
+             placeholder="email atau nomor induk anggota" required autofocus autocomplete="username">
       <i class="ti ti-user field-icon"></i>
     </div>
   </div>

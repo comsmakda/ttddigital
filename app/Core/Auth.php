@@ -2,32 +2,28 @@
 
 namespace App\Core;
 
-use App\Models\Admin;
+use App\Models\MainUser;
 
 /**
- * Auth sederhana berbasis session + tabel `admins` di database.
- *
- * CATATAN UNTUK INTEGRASI DI MASA DEPAN:
- * Saat ini login memeriksa tabel `admins` lokal (di-seed otomatis dengan
- * admin/admin123 saat pertama kali jalan). Ketika nanti sistem ini perlu
- * "nyambung" ke web utama COM SMKN 2 Pinrang, cukup ganti isi method
- * attempt() di bawah ini agar memvalidasi ke session/API web utama,
- * tanpa perlu mengubah controller atau tabel `signatures`.
+ * Auth berbasis session yang memvalidasi kredensial langsung ke database
+ * web utama COM SMKN 2 Pinrang (tabel `users`, role=admin, status=aktif).
+ * Login bisa pakai email ATAU NIA. Karena tidak ada tabel lokal yang
+ * disalin, perubahan password/email di web utama otomatis berlaku di sini.
  */
 class Auth
 {
-    public static function attempt(string $username, string $password): bool
+    public static function attempt(string $identifier, string $password): bool
     {
-        $admin = Admin::findByUsername($username);
+        $user = MainUser::findActiveAdminByIdentifier($identifier);
 
-        if (!$admin || !password_verify($password, $admin['password'])) {
+        if (!$user || !password_verify($password, $user['password_hash'])) {
             return false;
         }
 
         session_regenerate_id(true);
-        $_SESSION['admin_id'] = $admin['id'];
-        $_SESSION['admin_username'] = $admin['username'];
-        $_SESSION['admin_nama'] = $admin['nama'];
+        $_SESSION['admin_id'] = $user['id'];
+        $_SESSION['admin_username'] = $user['email'] ?: $user['nia'];
+        $_SESSION['admin_nama'] = $user['nama_lengkap'];
 
         return true;
     }
