@@ -27,4 +27,23 @@ class DashboardController extends Controller
             'jenis' => $jenis,
         ]);
     }
+
+    public function revoke(int $id): void
+    {
+        $this->requireAuth();
+
+        $signature = Signature::findById($id);
+
+        if (!$signature) {
+            $this->redirect('/dashboard');
+            return;
+        }
+
+        if ($signature['status'] === 'aktif') {
+            $keterangan = trim((string) $this->input('keterangan', ''));
+            Signature::revoke($id, $keterangan);
+        }
+
+        $this->redirect('/dashboard');
+    }
 }

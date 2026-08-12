@@ -1,5 +1,5 @@
 <?php
-
+/* layout.php */
 use App\Core\Auth;
 
 $admin = Auth::user();
@@ -16,7 +16,8 @@ $flash = flash_get();
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><?= e($title ?? 'Dashboard') ?> — TTD Digital COM SMKN 2 Pinrang</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
 <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
 <link rel="icon" href="<?= asset('images/logo-com.png') ?>">
@@ -24,9 +25,13 @@ $flash = flash_get();
 <body>
 
 <div class="app-shell">
-  <aside class="sidebar">
+  <div class="sidebar-overlay" data-menu-toggle></div>
+
+  <aside class="sidebar" id="appSidebar">
     <div class="sidebar-brand">
-      <img src="<?= asset('images/logo-com.png') ?>" alt="Logo COM">
+      <div class="brand-seal">
+        <img src="<?= asset('images/logo-com.png') ?>" alt="Logo COM" width="30" height="30">
+      </div>
       <div class="sidebar-brand-text">
         <strong>TTD Digital</strong>
         <span>COM SMKN 2 Pinrang</span>
@@ -76,5 +81,13 @@ $flash = flash_get();
 </div>
 
 <script src="<?= asset('js/app.js') ?>"></script>
+<script>
+  document.querySelectorAll('[data-menu-toggle]').forEach(function (el) {
+    el.addEventListener('click', function () {
+      document.getElementById('appSidebar').classList.toggle('sidebar-open');
+      document.querySelector('.sidebar-overlay').classList.toggle('show');
+    });
+  });
+</script>
 </body>
 </html>

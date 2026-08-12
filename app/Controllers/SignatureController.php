@@ -172,6 +172,8 @@ class SignatureController extends Controller
     /**
      * Generate QR code (PNG) berisi URL verifikasi, dengan logo COM di tengah.
      * Error correction level High dipakai supaya QR tetap ke-scan walau tertutup logo.
+     * Logo memakai PNG transparan (bukan kotak putih), jadi punchoutBackground
+     * otomatis mengikuti bentuk shield asli — tanpa background/shadow tambahan.
      * Mengembalikan path relatif (untuk disimpan di DB & dipakai <img src>).
      */
     private function generateQrCode(string $kode): string
@@ -183,8 +185,8 @@ class SignatureController extends Controller
             data: $verifyUrl,
             encoding: new Encoding('UTF-8'),
             errorCorrectionLevel: ErrorCorrectionLevel::High,
-            size: 500,
-            margin: 12,
+            size: 600,
+            margin: 16,
             roundBlockSizeMode: RoundBlockSizeMode::Margin,
             foregroundColor: new Color(15, 23, 42),
             backgroundColor: new Color(255, 255, 255),
@@ -196,7 +198,7 @@ class SignatureController extends Controller
         if (file_exists($logoPath)) {
             $logo = new Logo(
                 path: $logoPath,
-                resizeToWidth: 100,
+                resizeToWidth: 120,
                 punchoutBackground: true,
             );
         }

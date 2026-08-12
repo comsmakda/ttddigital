@@ -1,4 +1,5 @@
 <?php
+/* ttd_detail.php */
 $title = 'Detail TTD';
 $subtitle = $signature['kode_unik'];
 $qrUrl = url('/qr/' . $signature['kode_unik'] . '.png');
@@ -61,9 +62,9 @@ $verifyUrl = url('/verify/' . $signature['kode_unik']);
 
     <div style="margin-top:1.4rem; display:flex; gap:.6rem; flex-wrap:wrap;">
       <?php if ($signature['status'] === 'aktif'): ?>
-        <form method="POST" action="<?= url('/ttd/' . $signature['id'] . '/batalkan') ?>" data-confirm="Yakin ingin membatalkan TTD ini? QR akan tampil 'Tidak Valid' saat di-scan." style="display:inline-flex; gap:.6rem; align-items:center;">
+        <form method="POST" action="<?= url('/ttd/' . $signature['id'] . '/batalkan') ?>" data-confirm="Yakin ingin membatalkan TTD ini? QR akan tampil 'Tidak Valid' saat di-scan." style="display:inline-flex; gap:.6rem; align-items:center; flex-wrap:wrap;">
           <?= csrf_field() ?>
-          <input type="text" name="keterangan" class="field-input" placeholder="Alasan pembatalan (opsional)" style="min-width:220px;">
+          <input type="text" name="keterangan" class="field-input" placeholder="Alasan pembatalan (opsional)" style="min-width:220px; flex:1;">
           <button type="submit" class="btn btn-danger"><i class="ti ti-ban"></i> Batalkan TTD</button>
         </form>
       <?php else: ?>
@@ -75,16 +76,14 @@ $verifyUrl = url('/verify/' . $signature['kode_unik']);
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-header"><h2>QR Code</h2></div>
-    <div class="qr-box">
-      <img src="<?= e($qrUrl) ?>" alt="QR Code <?= e($signature['kode_unik']) ?>">
-      <a href="<?= e($qrUrl) ?>" download="<?= e($signature['kode_unik']) ?>.png" class="btn btn-primary btn-block btn-sm">
-        <i class="ti ti-download"></i> Download PNG
-      </a>
-      <a href="<?= e($verifyUrl) ?>" target="_blank" class="btn btn-outline btn-block btn-sm">
-        <i class="ti ti-external-link"></i> Lihat Halaman Verifikasi
-      </a>
-    </div>
+  <div class="card qr-box">
+    <div class="card-header" style="width:100%;"><h2>QR Code</h2></div>
+    <img src="<?= e($qrUrl) ?>" alt="QR Code <?= e($signature['kode_unik']) ?>">
+    <a href="<?= e($qrUrl) ?>" download="<?= e($signature['kode_unik']) ?>.png" class="btn btn-primary btn-block btn-sm">
+      <i class="ti ti-download"></i> Download PNG
+    </a>
+    <a href="<?= e($verifyUrl) ?>" target="_blank" class="btn btn-outline btn-block btn-sm">
+      <i class="ti ti-external-link"></i> Lihat Halaman Verifikasi
+    </a>
   </div>
 </div>

@@ -1,4 +1,5 @@
 <?php
+/* dashboard.php */
 $title = 'Dashboard';
 $subtitle = 'Daftar seluruh TTD digital yang pernah dibuat.';
 $items = $result['items'];
@@ -91,7 +92,15 @@ $items = $result['items'];
               <td><?= format_tanggal_indo($row['tanggal_ttd']) ?></td>
               <td><span class="badge <?= e($row['status']) ?>"><?= $row['status'] === 'aktif' ? 'Aktif' : 'Dibatalkan' ?></span></td>
               <td>
-                <a href="<?= url('/ttd/' . $row['id']) ?>" class="btn btn-outline btn-sm">Detail</a>
+                <div class="row-actions">
+                  <a href="<?= url('/ttd/' . $row['id']) ?>" class="btn btn-outline btn-sm">Detail</a>
+                  <?php if ($row['status'] === 'aktif'): ?>
+                    <form method="POST" action="<?= url('/ttd/' . $row['id'] . '/batalkan') ?>" onsubmit="return confirm('Yakin ingin membatalkan TTD ini?');">
+                      <?= csrf_field() ?>
+                      <button type="submit" class="btn btn-danger btn-sm"><i class="ti ti-ban"></i> Batalkan</button>
+                    </form>
+                  <?php endif; ?>
+                </div>
               </td>
             </tr>
           <?php endforeach; ?>

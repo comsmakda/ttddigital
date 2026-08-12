@@ -1,20 +1,21 @@
 <?php
+/* verify_result.php */
 $title = 'Verifikasi TTD';
 
 if (!$signature) {
     $status = 'invalid';
     $icon = 'ti-help-circle';
     $heading = 'TTD Tidak Ditemukan';
-    $desc = 'Kode yang di-scan tidak terdaftar dalam sistem.';
+    $desc = 'Kode yang di-scan tidak terdaftar dalam sistem. Pastikan QR Code berasal dari dokumen resmi COM SMKN 2 Pinrang.';
 } elseif ($signature['status'] === 'dibatalkan') {
     $status = 'revoked';
     $icon = 'ti-ban';
     $heading = 'TTD Sudah Dibatalkan';
-    $desc = 'Dokumen ini pernah ditandatangani namun TTD-nya sudah tidak berlaku.';
+    $desc = 'Dokumen ini pernah ditandatangani, namun TTD-nya sudah tidak berlaku lagi.';
 } else {
     $status = 'valid';
     $icon = 'ti-shield-check';
-    $heading = 'TTD Sah &amp; Terverifikasi';
+    $heading = 'TTD Sah & Terverifikasi';
     $desc = 'Dokumen ini ditandatangani secara resmi oleh COM SMKN 2 Pinrang.';
 }
 ?>
