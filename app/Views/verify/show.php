@@ -15,7 +15,7 @@ if (!$signature) {
 } else {
     $status = 'valid';
     $icon = 'ti-shield-check';
-    $heading = 'Sah &amp; Terverifikasi';
+    $heading = 'Sah & Terverifikasi';
     $desc = 'Dokumen ini ditandatangani secara resmi oleh COM SMKN 2 Pinrang dan tercatat sah dalam sistem.';
 }
 ?>

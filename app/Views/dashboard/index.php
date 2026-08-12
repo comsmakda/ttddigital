@@ -6,28 +6,28 @@ $items = $result['items'];
 ?>
 
 <div class="stats-grid">
-  <div class="stat-card stat-teal">
+  <div class="stat-card">
     <div class="stat-icon"><i class="ti ti-qrcode"></i></div>
     <div>
       <div class="stat-value"><?= $stats['total'] ?></div>
       <div class="stat-label">Total TTD</div>
     </div>
   </div>
-  <div class="stat-card stat-green">
+  <div class="stat-card">
     <div class="stat-icon green"><i class="ti ti-circle-check"></i></div>
     <div>
       <div class="stat-value"><?= $stats['aktif'] ?></div>
       <div class="stat-label">Aktif</div>
     </div>
   </div>
-  <div class="stat-card stat-red">
+  <div class="stat-card">
     <div class="stat-icon red"><i class="ti ti-ban"></i></div>
     <div>
       <div class="stat-value"><?= $stats['dibatalkan'] ?></div>
       <div class="stat-label">Dibatalkan</div>
     </div>
   </div>
-  <div class="stat-card stat-amber">
+  <div class="stat-card">
     <div class="stat-icon amber"><i class="ti ti-certificate"></i></div>
     <div>
       <div class="stat-value"><?= $stats['sertifikat'] ?></div>

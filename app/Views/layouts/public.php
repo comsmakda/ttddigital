@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><?= e($title ?? 'Verifikasi TTD') ?> — COM SMKN 2 Pinrang</title>
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#16305A">
+<meta name="theme-color" content="#0e7490">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
-<link rel="stylesheet" href="<?= asset('css/style.css') ?>?v=<?= defined('ASSET_VERSION') ? ASSET_VERSION : '5' ?>">
+<link rel="stylesheet" href="<?= asset('css/style.css') ?>?v=<?= defined('ASSET_VERSION') ? ASSET_VERSION : '6' ?>">
 <link rel="icon" href="<?= asset('images/logo-com.png') ?>">
 </head>
 <body>

@@ -68,27 +68,75 @@ $selectedJenis = $jenis === 'sertifikat' ? 'sertifikat' : 'surat';
   <aside class="preview-card">
     <span class="preview-eyebrow"><i class="ti ti-eye"></i> Pratinjau Dokumen</span>
 
-    <div class="preview-doc">
-      <div class="preview-doc-head">
-        <div class="preview-doc-seal"><i class="ti ti-shield-check"></i></div>
-        <div class="preview-doc-head-text">
-          <span class="preview-doc-org">SMKN 2 Pinrang</span>
-          <span class="preview-doc-kind" id="previewKind">Surat</span>
+    <!-- Surat: format surat dinas resmi (kop, nomor/lampiran/perihal, salam penutup) -->
+    <div class="letter-sheet" id="letterSurat">
+      <div class="letter-ribbon">Pratinjau</div>
+
+      <div class="letter-kop">
+        <img class="letter-kop-logo" src="<?= asset('images/logo-com.png') ?>" alt="Logo">
+        <div class="letter-kop-text">
+          <strong>SMK Negeri 2 Pinrang</strong>
+          <span>Jl. Pendidikan, Kab. Pinrang, Sulawesi Selatan</span>
         </div>
       </div>
+      <div class="letter-kop-rule"></div>
 
-      <h3 class="preview-doc-title" id="previewTitle">Perihal surat akan tampil di sini</h3>
-      <p class="preview-doc-number" id="previewNumber">Nomor surat</p>
+      <div class="letter-meta">
+        <table>
+          <tr>
+            <td class="letter-meta-label">Nomor</td>
+            <td>: <span id="previewNomor">—</span></td>
+          </tr>
+          <tr>
+            <td class="letter-meta-label">Lampiran</td>
+            <td>: -</td>
+          </tr>
+          <tr>
+            <td class="letter-meta-label">Perihal</td>
+            <td>: <strong id="previewPerihal">—</strong></td>
+          </tr>
+        </table>
+        <span class="letter-date" id="previewDate">Pinrang, —</span>
+      </div>
 
-      <div class="preview-doc-divider"></div>
+      <div class="letter-body-skeleton">
+        <span class="ln w-40"></span>
+        <span class="ln"></span>
+        <span class="ln"></span>
+        <span class="ln w-85"></span>
+        <span class="ln w-70"></span>
+      </div>
 
-      <div class="preview-sign">
-        <div class="preview-sign-seal"><i class="ti ti-qrcode"></i></div>
-        <div class="preview-sign-text">
-          <strong id="previewSignerName">Nama Penandatangan</strong>
-          <span id="previewSignerRole">Jabatan Penandatangan</span>
-          <span class="preview-sign-date" id="previewDate">—</span>
+      <div class="letter-sign">
+        <span>Hormat kami,</span>
+        <div class="letter-sign-qr"><i class="ti ti-qrcode"></i></div>
+        <strong id="previewSignerNameSurat">Nama Penandatangan</strong>
+        <span id="previewSignerRoleSurat">Jabatan Penandatangan</span>
+      </div>
+    </div>
+
+    <!-- Sertifikat: format sertifikat formal, tetap satu aksen -->
+    <div class="letter-sheet cert-sheet" id="letterSertifikat" style="display:none;">
+      <div class="letter-ribbon">Pratinjau</div>
+
+      <div class="letter-kop">
+        <img class="letter-kop-logo" src="<?= asset('images/logo-com.png') ?>" alt="Logo">
+        <div class="letter-kop-text">
+          <strong>SMK Negeri 2 Pinrang</strong>
+          <span>Community Programmer</span>
         </div>
+      </div>
+      <div class="letter-kop-rule"></div>
+
+      <div class="cert-eyebrow">Sertifikat</div>
+      <h3 class="cert-title" id="previewNamaSertifikat">Nama sertifikat akan tampil di sini</h3>
+
+      <div class="letter-sign">
+        <span>Diberikan oleh,</span>
+        <div class="letter-sign-qr"><i class="ti ti-qrcode"></i></div>
+        <strong id="previewSignerNameCert">Nama Penandatangan</strong>
+        <span id="previewSignerRoleCert">Jabatan Penandatangan</span>
+        <span id="previewDateCert" style="margin-top:4px;">—</span>
       </div>
     </div>
 
@@ -102,9 +150,8 @@ $selectedJenis = $jenis === 'sertifikat' ? 'sertifikat' : 'surat';
   const tabs = document.querySelectorAll('[data-jenis-tab]');
   const fieldsSurat = document.getElementById('fields-surat');
   const fieldsSertifikat = document.getElementById('fields-sertifikat');
-  const previewKind = document.getElementById('previewKind');
-  const previewTitle = document.getElementById('previewTitle');
-  const previewNumber = document.getElementById('previewNumber');
+  const letterSurat = document.getElementById('letterSurat');
+  const letterSertifikat = document.getElementById('letterSertifikat');
 
   const bulanIndo = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
@@ -113,36 +160,38 @@ $selectedJenis = $jenis === 'sertifikat' ? 'sertifikat' : 'surat';
     tabs.forEach(t => t.classList.toggle('active', t.dataset.jenisTab === jenis));
     fieldsSurat.style.display = jenis === 'surat' ? 'block' : 'none';
     fieldsSertifikat.style.display = jenis === 'sertifikat' ? 'block' : 'none';
-    previewKind.textContent = jenis === 'surat' ? 'Surat' : 'Sertifikat';
+    letterSurat.style.display = jenis === 'surat' ? 'block' : 'none';
+    letterSertifikat.style.display = jenis === 'sertifikat' ? 'block' : 'none';
     updatePreview();
+  }
+
+  function formatTanggal(tgl) {
+    if (!tgl) return null;
+    const d = new Date(tgl + 'T00:00:00');
+    return d.getDate() + ' ' + bulanIndo[d.getMonth()] + ' ' + d.getFullYear();
   }
 
   function updatePreview() {
     const jenis = jenisInput.value;
+    const tgl = document.getElementById('in-tanggal_ttd').value;
+    const tglFormatted = formatTanggal(tgl);
+    const signerName = document.getElementById('in-nama_penandatangan').value.trim() || 'Nama Penandatangan';
+    const signerRole = document.getElementById('in-jabatan_penandatangan').value.trim() || 'Jabatan Penandatangan';
+
     if (jenis === 'surat') {
       const perihal = document.getElementById('in-perihal').value.trim();
       const nomor = document.getElementById('in-nomor_surat').value.trim();
-      previewTitle.textContent = perihal || 'Perihal surat akan tampil di sini';
-      previewNumber.textContent = nomor || 'Nomor surat';
-      previewNumber.style.display = 'block';
+      document.getElementById('previewPerihal').textContent = perihal || '—';
+      document.getElementById('previewNomor').textContent = nomor || '—';
+      document.getElementById('previewDate').textContent = 'Pinrang, ' + (tglFormatted || '—');
+      document.getElementById('previewSignerNameSurat').textContent = signerName;
+      document.getElementById('previewSignerRoleSurat').textContent = signerRole;
     } else {
       const nama = document.getElementById('in-nama_sertifikat').value.trim();
-      previewTitle.textContent = nama || 'Nama sertifikat akan tampil di sini';
-      previewNumber.textContent = '';
-      previewNumber.style.display = 'none';
-    }
-    document.getElementById('previewSignerName').textContent =
-      document.getElementById('in-nama_penandatangan').value.trim() || 'Nama Penandatangan';
-    document.getElementById('previewSignerRole').textContent =
-      document.getElementById('in-jabatan_penandatangan').value.trim() || 'Jabatan Penandatangan';
-
-    const tgl = document.getElementById('in-tanggal_ttd').value;
-    const dateEl = document.getElementById('previewDate');
-    if (tgl) {
-      const d = new Date(tgl + 'T00:00:00');
-      dateEl.textContent = d.getDate() + ' ' + bulanIndo[d.getMonth()] + ' ' + d.getFullYear();
-    } else {
-      dateEl.textContent = '—';
+      document.getElementById('previewNamaSertifikat').textContent = nama || 'Nama sertifikat akan tampil di sini';
+      document.getElementById('previewSignerNameCert').textContent = signerName;
+      document.getElementById('previewSignerRoleCert').textContent = signerRole;
+      document.getElementById('previewDateCert').textContent = 'Pinrang, ' + (tglFormatted || '—');
     }
   }
 
