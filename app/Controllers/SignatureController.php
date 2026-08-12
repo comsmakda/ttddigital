@@ -8,7 +8,6 @@ use App\Models\Signature;
 use Endroid\QrCode\Color\Color;
 use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\ErrorCorrectionLevel;
-use Endroid\QrCode\Logo\Logo;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\RoundBlockSizeMode;
 use Endroid\QrCode\Writer\PngWriter;
@@ -146,6 +145,39 @@ class SignatureController extends Controller
     }
 
     /**
+     * Hapus permanen data TTD (mis. salah input saat pembuatan).
+     * Beda dari revoke(): baris di database benar-benar dihapus,
+     * bukan sekadar diubah statusnya jadi "dibatalkan".
+     */
+    public function destroy(string $id): void
+    {
+        $this->requireAuth();
+
+        if (!$this->verifyCsrf()) {
+            $this->flash('error', 'Sesi tidak valid, silakan coba lagi.');
+            $this->redirect('/dashboard');
+        }
+
+        $signature = Signature::findById((int) $id);
+        if (!$signature) {
+            $this->redirect('/dashboard');
+        }
+
+        // Hapus juga file QR code fisiknya supaya tidak jadi sampah di storage
+        if (!empty($signature['kode_unik'])) {
+            $qrPath = dirname(__DIR__, 2) . '/storage/qrcodes/' . $signature['kode_unik'] . '.png';
+            if (file_exists($qrPath)) {
+                @unlink($qrPath);
+            }
+        }
+
+        Signature::delete((int) $id);
+
+        $this->flash('success', 'TTD berhasil dihapus permanen.');
+        $this->redirect('/dashboard');
+    }
+
+    /**
      * Stream file QR code dari storage (di luar webroot) supaya tetap
      * bisa diakses lewat <img src> tanpa membuat storage/ jadi public.
      */
@@ -172,8 +204,18 @@ class SignatureController extends Controller
     /**
      * Generate QR code (PNG) berisi URL verifikasi, dengan logo COM di tengah.
      * Error correction level High dipakai supaya QR tetap ke-scan walau tertutup logo.
-     * Logo memakai PNG transparan (bukan kotak putih), jadi punchoutBackground
-     * otomatis mengikuti bentuk shield asli — tanpa background/shadow tambahan.
+     *
+     * CATATAN PENTING soal logo transparan:
+     * Endroid\QrCode\Logo dengan punchoutBackground:true hanya benar-benar
+     * memotong lubang transparan kalau backend-nya Imagick. Kalau server cuma
+     * punya GD (umum di banyak hosting/Docker image PHP standar), fitur itu
+     * jatuh ke fallback yang malah menaruh kotak/lingkaran background solid
+     * di belakang logo — makanya logo yang aslinya transparan jadi kelihatan
+     * ada bg-nya.
+     *
+     * Di sini logo di-composite manual pakai GD (imagecopyresampled +
+     * alpha channel dijaga eksplisit), jadi transparansi asli file PNG logo
+     * benar-benar dipertahankan apa adanya, tanpa kotak/warna tambahan apa pun.
      * Mengembalikan path relatif (untuk disimpan di DB & dipakai <img src>).
      */
     private function generateQrCode(string $kode): string
@@ -192,27 +234,79 @@ class SignatureController extends Controller
             backgroundColor: new Color(255, 255, 255),
         );
 
-        $writer = new PngWriter();
-
-        $logo = null;
-        if (file_exists($logoPath)) {
-            $logo = new Logo(
-                path: $logoPath,
-                resizeToWidth: 120,
-                punchoutBackground: true,
-            );
-        }
-
-        $result = $writer->write($qrCode, $logo);
+        // Generate QR polos dulu (tanpa logo bawaan Endroid) sebagai base image
+        $result = (new PngWriter())->write($qrCode);
 
         $filename = $kode . '.png';
         $storageDir = dirname(__DIR__, 2) . '/storage/qrcodes';
         if (!is_dir($storageDir)) {
             mkdir($storageDir, 0775, true);
         }
+        $outputPath = $storageDir . '/' . $filename;
 
-        $result->saveToFile($storageDir . '/' . $filename);
+        if (!file_exists($logoPath)) {
+            // Tidak ada logo — simpan QR polos saja
+            $result->saveToFile($outputPath);
+            return $filename;
+        }
+
+        $this->compositeLogo($result->getString(), $logoPath, $outputPath);
 
         return $filename;
+    }
+
+    /**
+     * Tempelkan logo PNG transparan ke tengah QR code memakai GD,
+     * dengan alpha channel dijaga manual di setiap tahap supaya tidak
+     * ada background yang ikut ditambahkan oleh proses resize/copy.
+     */
+    private function compositeLogo(string $qrPngData, string $logoPath, string $outputPath): void
+    {
+        $qrImage = imagecreatefromstring($qrPngData);
+        $logoSource = imagecreatefrompng($logoPath);
+
+        if ($qrImage === false || $logoSource === false) {
+            // Gagal load salah satu gambar — simpan QR polos saja daripada gagal total
+            file_put_contents($outputPath, $qrPngData);
+            return;
+        }
+
+        // Jaga alpha channel logo sumber apa adanya (jangan di-blend ke putih)
+        imagealphablending($logoSource, false);
+        imagesavealpha($logoSource, true);
+
+        $qrSize = imagesx($qrImage);
+        $targetLogoSize = (int) round($qrSize * 0.22); // ~22% lebar QR, aman untuk error correction High
+
+        $srcW = imagesx($logoSource);
+        $srcH = imagesy($logoSource);
+        $ratio = min($targetLogoSize / $srcW, $targetLogoSize / $srcH);
+        $dstW = max(1, (int) round($srcW * $ratio));
+        $dstH = max(1, (int) round($srcH * $ratio));
+
+        // Kanvas resize logo dengan alpha transparan penuh sebagai latar,
+        // supaya sudut/tepi logo yang transparan tetap transparan setelah resize
+        $resizedLogo = imagecreatetruecolor($dstW, $dstH);
+        imagealphablending($resizedLogo, false);
+        imagesavealpha($resizedLogo, true);
+        $transparent = imagecolorallocatealpha($resizedLogo, 0, 0, 0, 127);
+        imagefill($resizedLogo, 0, 0, $transparent);
+        imagealphablending($resizedLogo, false);
+        imagecopyresampled($resizedLogo, $logoSource, 0, 0, 0, 0, $dstW, $dstH, $srcW, $srcH);
+
+        // Tempel ke tengah QR dengan alpha blending aktif di kanvas tujuan,
+        // supaya bagian transparan logo menampilkan pola QR di baliknya
+        // (bukan kotak putih/berwarna)
+        imagealphablending($qrImage, true);
+        imagesavealpha($qrImage, true);
+        $destX = (int) round(($qrSize - $dstW) / 2);
+        $destY = (int) round(($qrSize - $dstH) / 2);
+        imagecopy($qrImage, $resizedLogo, $destX, $destY, 0, 0, $dstW, $dstH);
+
+        imagepng($qrImage, $outputPath);
+
+        imagedestroy($qrImage);
+        imagedestroy($logoSource);
+        imagedestroy($resizedLogo);
     }
 }
