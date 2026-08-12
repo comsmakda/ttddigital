@@ -28,10 +28,11 @@ if (!$signature) {
     </div>
 
     <div class="verify-letterhead">
-      <img class="verify-letterhead-logo" src="<?= asset('images/logo-com.png') ?>" alt="Logo COM SMKN 2 Pinrang">
+      <img class="verify-letterhead-logo" src="<?= asset('images/logo-com.png') ?>" alt="Logo Community Programmer SMKN 2 Pinrang">
       <div class="verify-letterhead-text">
+        <span class="verify-letterhead-eyebrow">Community Programmer</span>
         <span class="verify-letterhead-org">SMK Negeri 2 Pinrang</span>
-        <span class="verify-letterhead-unit">Community Programmer (COM) &middot; Sistem Tanda Tangan Digital</span>
+        <span class="verify-letterhead-unit">Sistem Tanda Tangan Digital &middot; Kab. Pinrang, Sulawesi Selatan</span>
       </div>
     </div>
     <div class="verify-rule"></div>

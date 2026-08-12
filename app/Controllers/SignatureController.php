@@ -259,6 +259,14 @@ class SignatureController extends Controller
      * Tempelkan logo PNG transparan ke tengah QR code memakai GD,
      * dengan alpha channel dijaga manual di setiap tahap supaya tidak
      * ada background yang ikut ditambahkan oleh proses resize/copy.
+     *
+     * FIX: sebelum ini, kalau file logo tersimpan sebagai PNG paletted
+     * (PNG-8 dengan 1 warna index transparan, bukan PNG-32 truecolor+alpha
+     * penuh — banyak tool ekspor logo/ikon default ke format ini), GD gagal
+     * memetakan transparansi index itu ke kanvas truecolor-alpha saat
+     * di-resample, dan area transparan itu malah jadi hitam solid.
+     * imagepalettetotruecolor() dipanggil dulu di sini supaya logo apa pun
+     * (paletted atau truecolor) diproses dengan alpha channel penuh 0–255.
      */
     private function compositeLogo(string $qrPngData, string $logoPath, string $outputPath): void
     {
@@ -269,6 +277,17 @@ class SignatureController extends Controller
             // Gagal load salah satu gambar — simpan QR polos saja daripada gagal total
             file_put_contents($outputPath, $qrPngData);
             return;
+        }
+
+        // Paksa truecolor dulu SEBELUM diapa-apain — ini kunci fix-nya.
+        // Kalau logo (atau QR base) ternyata paletted PNG, transparansinya
+        // cuma berupa 1 index warna, bukan skala alpha penuh, dan itu yang
+        // bikin GD salah render jadi kotak hitam solid saat di-resample.
+        if (!imageistruecolor($logoSource)) {
+            imagepalettetotruecolor($logoSource);
+        }
+        if (!imageistruecolor($qrImage)) {
+            imagepalettetotruecolor($qrImage);
         }
 
         // Jaga alpha channel logo sumber apa adanya (jangan di-blend ke putih)

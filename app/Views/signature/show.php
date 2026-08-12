@@ -1,100 +1,203 @@
 <?php
-/* ttd_detail.php */
-$title = 'Detail TTD';
-$subtitle = $signature['kode_unik'];
-$qrUrl = url('/qr/' . $signature['kode_unik'] . '.png');
-$verifyUrl = url('/verify/' . $signature['kode_unik']);
+/* ttd_buat.php */
+$title = 'Buat TTD Baru';
+$subtitle = 'Isi data dokumen, sistem akan membuat kode unik & QR Code otomatis.';
+$selectedJenis = $jenis === 'sertifikat' ? 'sertifikat' : 'surat';
 ?>
 
-<div class="detail-grid">
+<div class="create-grid">
   <div class="card">
-    <div class="card-header">
-      <h2>Informasi Dokumen</h2>
-      <span class="badge <?= e($signature['status']) ?>"><?= $signature['status'] === 'aktif' ? 'Aktif' : 'Dibatalkan' ?></span>
+    <div class="tab-bar">
+      <button type="button" class="tab-btn <?= $selectedJenis === 'surat' ? 'active' : '' ?>" data-jenis-tab="surat">
+        <i class="ti ti-mail"></i> Surat
+      </button>
+      <button type="button" class="tab-btn <?= $selectedJenis === 'sertifikat' ? 'active' : '' ?>" data-jenis-tab="sertifikat">
+        <i class="ti ti-certificate"></i> Sertifikat
+      </button>
     </div>
 
-    <div class="verify-row">
-      <span class="label">Kode Unik</span>
-      <span class="value kode-mono"><?= e($signature['kode_unik']) ?></span>
-    </div>
-    <div class="verify-row">
-      <span class="label">Jenis Dokumen</span>
-      <span class="value"><?= $signature['jenis'] === 'surat' ? 'Surat' : 'Sertifikat' ?></span>
-    </div>
-    <?php if ($signature['jenis'] === 'surat'): ?>
-      <div class="verify-row">
-        <span class="label">Nomor Surat</span>
-        <span class="value"><?= e($signature['nomor_surat']) ?></span>
-      </div>
-      <div class="verify-row">
-        <span class="label">Perihal</span>
-        <span class="value"><?= e($signature['perihal']) ?></span>
-      </div>
-    <?php else: ?>
-      <div class="verify-row">
-        <span class="label">Nama Sertifikat</span>
-        <span class="value"><?= e($signature['nama_sertifikat']) ?></span>
-      </div>
-    <?php endif; ?>
-    <div class="verify-row">
-      <span class="label">Penandatangan</span>
-      <span class="value"><?= e($signature['nama_penandatangan']) ?></span>
-    </div>
-    <div class="verify-row">
-      <span class="label">Jabatan</span>
-      <span class="value"><?= e($signature['jabatan_penandatangan']) ?></span>
-    </div>
-    <div class="verify-row">
-      <span class="label">Tanggal TTD</span>
-      <span class="value"><?= format_tanggal_indo($signature['tanggal_ttd']) ?></span>
-    </div>
-    <div class="verify-row">
-      <span class="label">Dibuat</span>
-      <span class="value"><?= format_tanggal_indo($signature['created_at']) ?></span>
-    </div>
+    <form method="POST" action="<?= url('/ttd/buat') ?>" id="ttdForm">
+      <?= csrf_field() ?>
+      <input type="hidden" name="jenis" id="jenis-input" value="<?= e($selectedJenis) ?>">
 
-    <?php if ($signature['status'] === 'dibatalkan' && !empty($signature['keterangan_pembatalan'])): ?>
-      <div class="alert error detail-alert">
-        <i class="ti ti-alert-circle"></i>
-        <span>Alasan pembatalan: <?= e($signature['keterangan_pembatalan']) ?></span>
+      <div id="fields-surat" style="display: <?= $selectedJenis === 'surat' ? 'block' : 'none' ?>;">
+        <div class="field-group">
+          <label class="field-label">Nomor Surat</label>
+          <input type="text" name="nomor_surat" id="in-nomor_surat" class="field-input" placeholder="mis. 421/123/SMKN2-PRG/2026" value="<?= old('nomor_surat') ?>">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Perihal</label>
+          <input type="text" name="perihal" id="in-perihal" class="field-input" placeholder="mis. Surat Keterangan Aktif Siswa" value="<?= old('perihal') ?>">
+        </div>
       </div>
-    <?php endif; ?>
 
-    <div class="detail-actions">
-      <?php if ($signature['status'] === 'aktif'): ?>
-        <form method="POST" action="<?= url('/ttd/' . $signature['id'] . '/batalkan') ?>" data-confirm="Yakin ingin membatalkan TTD ini? QR akan tampil 'Tidak Valid' saat di-scan." class="detail-actions-inline">
-          <?= csrf_field() ?>
-          <input type="text" name="keterangan" class="field-input" placeholder="Alasan pembatalan (opsional)">
-          <button type="submit" class="btn btn-danger"><i class="ti ti-ban"></i> Batalkan TTD</button>
-        </form>
-      <?php else: ?>
-        <form method="POST" action="<?= url('/ttd/' . $signature['id'] . '/aktifkan') ?>" data-confirm="Aktifkan kembali TTD ini?">
-          <?= csrf_field() ?>
-          <button type="submit" class="btn btn-primary"><i class="ti ti-refresh"></i> Aktifkan Kembali</button>
-        </form>
-      <?php endif; ?>
-    </div>
-
-    <div class="detail-danger-zone">
-      <div class="detail-danger-zone-text">
-        <strong>Hapus Permanen</strong>
-        <span>Gunakan ini jika TTD dibuat salah dan ingin dihapus sepenuhnya dari data. Tindakan ini tidak bisa dibatalkan.</span>
+      <div id="fields-sertifikat" style="display: <?= $selectedJenis === 'sertifikat' ? 'block' : 'none' ?>;">
+        <div class="field-group">
+          <label class="field-label">Nama Sertifikat</label>
+          <input type="text" name="nama_sertifikat" id="in-nama_sertifikat" class="field-input" placeholder="mis. Sertifikat Juara 1 Lomba Web Design" value="<?= old('nama_sertifikat') ?>">
+        </div>
       </div>
-      <form method="POST" action="<?= url('/ttd/' . $signature['id'] . '/hapus') ?>" onsubmit="return confirm('Yakin ingin menghapus TTD ini secara PERMANEN? Data tidak bisa dikembalikan.');">
-        <?= csrf_field() ?>
-        <button type="submit" class="btn btn-ghost-danger"><i class="ti ti-trash"></i> Hapus Permanen</button>
-      </form>
-    </div>
+
+      <div class="form-row">
+        <div class="field-group">
+          <label class="field-label">Nama Penandatangan</label>
+          <input type="text" name="nama_penandatangan" id="in-nama_penandatangan" class="field-input" placeholder="mis. Drs. Ahmad, M.Pd." value="<?= old('nama_penandatangan') ?>" required>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Jabatan Penandatangan</label>
+          <input type="text" name="jabatan_penandatangan" id="in-jabatan_penandatangan" class="field-input" placeholder="mis. Kepala Sekolah" value="<?= old('jabatan_penandatangan') ?>" required>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Tanggal TTD</label>
+        <input type="date" name="tanggal_ttd" id="in-tanggal_ttd" class="field-input" value="<?= old('tanggal_ttd', date('Y-m-d')) ?>" required>
+      </div>
+
+      <div class="field-hint" style="margin-bottom:1.2rem;">
+        Setelah disimpan, sistem otomatis membuat kode unik & QR Code (dengan logo COM di tengah) yang bisa didownload dan ditempel ke dokumen.
+      </div>
+
+      <button type="submit" class="btn btn-primary">
+        <i class="ti ti-qrcode"></i> Simpan &amp; Generate QR
+      </button>
+      <a href="<?= url('/dashboard') ?>" class="btn btn-outline">Batal</a>
+    </form>
   </div>
 
-  <div class="card qr-box">
-    <div class="card-header qr-box-header"><h2>QR Code</h2></div>
-    <img src="<?= e($qrUrl) ?>" alt="QR Code <?= e($signature['kode_unik']) ?>">
-    <a href="<?= e($qrUrl) ?>" download="<?= e($signature['kode_unik']) ?>.png" class="btn btn-primary btn-block btn-sm">
-      <i class="ti ti-download"></i> Download PNG
-    </a>
-    <a href="<?= e($verifyUrl) ?>" target="_blank" class="btn btn-outline btn-block btn-sm">
-      <i class="ti ti-external-link"></i> Lihat Halaman Verifikasi
-    </a>
-  </div>
+  <aside class="preview-card">
+    <span class="preview-eyebrow"><i class="ti ti-eye"></i> Pratinjau Dokumen</span>
+
+    <!-- Surat: format surat dinas resmi (kop, nomor/lampiran/perihal, salam penutup) -->
+    <div class="letter-sheet" id="letterSurat">
+      <div class="letter-ribbon">Pratinjau</div>
+
+      <div class="letter-kop">
+        <img class="letter-kop-logo" src="<?= asset('images/logo-com.png') ?>" alt="Logo">
+        <div class="letter-kop-text">
+          <span class="letter-kop-eyebrow">Community Programmer</span>
+          <strong>SMK Negeri 2 Pinrang</strong>
+          <span>Jl. Pendidikan, Kab. Pinrang, Sulawesi Selatan</span>
+        </div>
+      </div>
+      <div class="letter-kop-rule"></div>
+
+      <div class="letter-meta">
+        <table>
+          <tr>
+            <td class="letter-meta-label">Nomor</td>
+            <td>: <span id="previewNomor">—</span></td>
+          </tr>
+          <tr>
+            <td class="letter-meta-label">Lampiran</td>
+            <td>: -</td>
+          </tr>
+          <tr>
+            <td class="letter-meta-label">Perihal</td>
+            <td>: <strong id="previewPerihal">—</strong></td>
+          </tr>
+        </table>
+        <span class="letter-date" id="previewDate">Pinrang, —</span>
+      </div>
+
+      <div class="letter-body-skeleton">
+        <span class="ln w-40"></span>
+        <span class="ln"></span>
+        <span class="ln"></span>
+        <span class="ln w-85"></span>
+        <span class="ln w-70"></span>
+      </div>
+
+      <div class="letter-sign">
+        <span>Hormat kami,</span>
+        <div class="letter-sign-qr"><i class="ti ti-qrcode"></i></div>
+        <strong id="previewSignerNameSurat">Nama Penandatangan</strong>
+        <span id="previewSignerRoleSurat">Jabatan Penandatangan</span>
+      </div>
+    </div>
+
+    <!-- Sertifikat: format sertifikat formal, tetap satu aksen -->
+    <div class="letter-sheet cert-sheet" id="letterSertifikat" style="display:none;">
+      <div class="letter-ribbon">Pratinjau</div>
+
+      <div class="letter-kop">
+        <img class="letter-kop-logo" src="<?= asset('images/logo-com.png') ?>" alt="Logo">
+        <div class="letter-kop-text">
+          <span class="letter-kop-eyebrow">Community Programmer</span>
+          <strong>SMK Negeri 2 Pinrang</strong>
+        </div>
+      </div>
+      <div class="letter-kop-rule"></div>
+
+      <div class="cert-eyebrow">Sertifikat</div>
+      <h3 class="cert-title" id="previewNamaSertifikat">Nama sertifikat akan tampil di sini</h3>
+
+      <div class="letter-sign">
+        <span>Diberikan oleh,</span>
+        <div class="letter-sign-qr"><i class="ti ti-qrcode"></i></div>
+        <strong id="previewSignerNameCert">Nama Penandatangan</strong>
+        <span id="previewSignerRoleCert">Jabatan Penandatangan</span>
+        <span id="previewDateCert" style="margin-top:4px;">—</span>
+      </div>
+    </div>
+
+    <p class="preview-hint"><i class="ti ti-info-circle"></i> QR Code &amp; kode unik dibuat otomatis setelah disimpan.</p>
+  </aside>
 </div>
+
+<script>
+(function () {
+  const jenisInput = document.getElementById('jenis-input');
+  const tabs = document.querySelectorAll('[data-jenis-tab]');
+  const fieldsSurat = document.getElementById('fields-surat');
+  const fieldsSertifikat = document.getElementById('fields-sertifikat');
+  const letterSurat = document.getElementById('letterSurat');
+  const letterSertifikat = document.getElementById('letterSertifikat');
+
+  const bulanIndo = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+  function setJenis(jenis) {
+    jenisInput.value = jenis;
+    tabs.forEach(t => t.classList.toggle('active', t.dataset.jenisTab === jenis));
+    fieldsSurat.style.display = jenis === 'surat' ? 'block' : 'none';
+    fieldsSertifikat.style.display = jenis === 'sertifikat' ? 'block' : 'none';
+    letterSurat.style.display = jenis === 'surat' ? 'block' : 'none';
+    letterSertifikat.style.display = jenis === 'sertifikat' ? 'block' : 'none';
+    updatePreview();
+  }
+
+  function formatTanggal(tgl) {
+    if (!tgl) return null;
+    const d = new Date(tgl + 'T00:00:00');
+    return d.getDate() + ' ' + bulanIndo[d.getMonth()] + ' ' + d.getFullYear();
+  }
+
+  function updatePreview() {
+    const jenis = jenisInput.value;
+    const tgl = document.getElementById('in-tanggal_ttd').value;
+    const tglFormatted = formatTanggal(tgl);
+    const signerName = document.getElementById('in-nama_penandatangan').value.trim() || 'Nama Penandatangan';
+    const signerRole = document.getElementById('in-jabatan_penandatangan').value.trim() || 'Jabatan Penandatangan';
+
+    if (jenis === 'surat') {
+      const perihal = document.getElementById('in-perihal').value.trim();
+      const nomor = document.getElementById('in-nomor_surat').value.trim();
+      document.getElementById('previewPerihal').textContent = perihal || '—';
+      document.getElementById('previewNomor').textContent = nomor || '—';
+      document.getElementById('previewDate').textContent = 'Pinrang, ' + (tglFormatted || '—');
+      document.getElementById('previewSignerNameSurat').textContent = signerName;
+      document.getElementById('previewSignerRoleSurat').textContent = signerRole;
+    } else {
+      const nama = document.getElementById('in-nama_sertifikat').value.trim();
+      document.getElementById('previewNamaSertifikat').textContent = nama || 'Nama sertifikat akan tampil di sini';
+      document.getElementById('previewSignerNameCert').textContent = signerName;
+      document.getElementById('previewSignerRoleCert').textContent = signerRole;
+      document.getElementById('previewDateCert').textContent = 'Pinrang, ' + (tglFormatted || '—');
+    }
+  }
+
+  tabs.forEach(t => t.addEventListener('click', () => setJenis(t.dataset.jenisTab)));
+  document.getElementById('ttdForm').addEventListener('input', updatePreview);
+  updatePreview();
+})();
+</script>

@@ -25,6 +25,7 @@ $router->post('/ttd/buat', [SignatureController::class, 'store']);
 $router->get('/ttd/{id}', [SignatureController::class, 'show']);
 $router->post('/ttd/{id}/batalkan', [SignatureController::class, 'revoke']);
 $router->post('/ttd/{id}/aktifkan', [SignatureController::class, 'reactivate']);
+$router->post('/ttd/{id}/hapus', [SignatureController::class, 'destroy']);
 
 // --- QR image (di luar webroot, di-stream lewat controller) ---
 $router->get('/qr/{kode}.png', [SignatureController::class, 'qrImage']);

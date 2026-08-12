@@ -518,6 +518,15 @@ img { max-width: 100%; display: block; }
   flex-shrink: 0;
 }
 .letter-kop-text { min-width: 0; }
+.letter-kop-eyebrow {
+  display: block;
+  font-size: .6rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--c-muted);
+  margin-bottom: 1px;
+}
 .letter-kop-text strong {
   display: block;
   font-size: .86rem;
@@ -769,29 +778,35 @@ img { max-width: 100%; display: block; }
   z-index: 1;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
 }
-/* Logo stays intact (no crop/circle mask) — just a soft accent plate behind it, no border/card */
+/* Logo polos — tidak ada plat/background/border/shadow di belakangnya, sesuai aslinya */
 .verify-letterhead-logo {
-  width: 52px;
-  height: 52px;
-  padding: 7px;
-  border-radius: var(--radius-sm);
-  background: rgba(14,116,144,.07);
+  width: 56px;
+  height: 56px;
   object-fit: contain;
   flex-shrink: 0;
 }
-.verify-letterhead-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.verify-letterhead-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.verify-letterhead-eyebrow {
+  font-size: .66rem;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--c-muted);
+}
 .verify-letterhead-org {
-  font-size: 1rem;
+  font-size: 1.12rem;
   font-weight: 800;
   letter-spacing: -.01em;
   color: var(--c-primary-dk);
   text-transform: uppercase;
+  line-height: 1.25;
 }
 .verify-letterhead-unit {
   font-size: .76rem;
   color: var(--c-muted);
+  margin-top: 2px;
 }
 
 .verify-rule {
