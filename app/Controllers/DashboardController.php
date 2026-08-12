@@ -46,4 +46,29 @@ class DashboardController extends Controller
 
         $this->redirect('/dashboard');
     }
+
+    /**
+     * Hapus permanen data TTD (mis. salah input saat pembuatan).
+     * Berbeda dari revoke(): ini benar-benar menghapus baris dari database,
+     * bukan sekadar mengubah status jadi "dibatalkan".
+     */
+    public function delete(int $id): void
+    {
+        $this->requireAuth();
+
+        $signature = Signature::findById($id);
+
+        if (!$signature) {
+            $this->redirect('/dashboard');
+            return;
+        }
+
+        Signature::delete($id);
+
+        if (function_exists('flash_set')) {
+            flash_set('success', 'TTD "' . ($signature['kode_unik'] ?? '') . '" berhasil dihapus permanen.');
+        }
+
+        $this->redirect('/dashboard');
+    }
 }

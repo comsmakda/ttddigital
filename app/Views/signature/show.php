@@ -54,17 +54,17 @@ $verifyUrl = url('/verify/' . $signature['kode_unik']);
     </div>
 
     <?php if ($signature['status'] === 'dibatalkan' && !empty($signature['keterangan_pembatalan'])): ?>
-      <div class="alert error" style="margin-top:1.2rem;">
+      <div class="alert error detail-alert">
         <i class="ti ti-alert-circle"></i>
         <span>Alasan pembatalan: <?= e($signature['keterangan_pembatalan']) ?></span>
       </div>
     <?php endif; ?>
 
-    <div style="margin-top:1.4rem; display:flex; gap:.6rem; flex-wrap:wrap;">
+    <div class="detail-actions">
       <?php if ($signature['status'] === 'aktif'): ?>
-        <form method="POST" action="<?= url('/ttd/' . $signature['id'] . '/batalkan') ?>" data-confirm="Yakin ingin membatalkan TTD ini? QR akan tampil 'Tidak Valid' saat di-scan." style="display:inline-flex; gap:.6rem; align-items:center; flex-wrap:wrap;">
+        <form method="POST" action="<?= url('/ttd/' . $signature['id'] . '/batalkan') ?>" data-confirm="Yakin ingin membatalkan TTD ini? QR akan tampil 'Tidak Valid' saat di-scan." class="detail-actions-inline">
           <?= csrf_field() ?>
-          <input type="text" name="keterangan" class="field-input" placeholder="Alasan pembatalan (opsional)" style="min-width:220px; flex:1;">
+          <input type="text" name="keterangan" class="field-input" placeholder="Alasan pembatalan (opsional)">
           <button type="submit" class="btn btn-danger"><i class="ti ti-ban"></i> Batalkan TTD</button>
         </form>
       <?php else: ?>
@@ -74,10 +74,21 @@ $verifyUrl = url('/verify/' . $signature['kode_unik']);
         </form>
       <?php endif; ?>
     </div>
+
+    <div class="detail-danger-zone">
+      <div class="detail-danger-zone-text">
+        <strong>Hapus Permanen</strong>
+        <span>Gunakan ini jika TTD dibuat salah dan ingin dihapus sepenuhnya dari data. Tindakan ini tidak bisa dibatalkan.</span>
+      </div>
+      <form method="POST" action="<?= url('/ttd/' . $signature['id'] . '/hapus') ?>" onsubmit="return confirm('Yakin ingin menghapus TTD ini secara PERMANEN? Data tidak bisa dikembalikan.');">
+        <?= csrf_field() ?>
+        <button type="submit" class="btn btn-ghost-danger"><i class="ti ti-trash"></i> Hapus Permanen</button>
+      </form>
+    </div>
   </div>
 
   <div class="card qr-box">
-    <div class="card-header" style="width:100%;"><h2>QR Code</h2></div>
+    <div class="card-header qr-box-header"><h2>QR Code</h2></div>
     <img src="<?= e($qrUrl) ?>" alt="QR Code <?= e($signature['kode_unik']) ?>">
     <a href="<?= e($qrUrl) ?>" download="<?= e($signature['kode_unik']) ?>.png" class="btn btn-primary btn-block btn-sm">
       <i class="ti ti-download"></i> Download PNG

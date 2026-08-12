@@ -60,7 +60,7 @@ $flash = flash_get();
 
   <main class="main-content">
     <div class="topbar">
-      <div style="display:flex; align-items:center; gap:.9rem;">
+      <div class="topbar-left">
         <button class="menu-toggle" data-menu-toggle aria-label="Menu"><i class="ti ti-menu-2"></i></button>
         <div>
           <h1><?= e($title ?? 'Dashboard') ?></h1>

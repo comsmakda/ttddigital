@@ -66,21 +66,33 @@ $selectedJenis = $jenis === 'sertifikat' ? 'sertifikat' : 'surat';
   </div>
 
   <aside class="preview-card">
-    <span class="preview-eyebrow">Pratinjau Dokumen</span>
+    <span class="preview-eyebrow"><i class="ti ti-eye"></i> Pratinjau Dokumen</span>
+
     <div class="preview-doc">
-      <div class="preview-doc-kind" id="previewKind">Surat</div>
+      <div class="preview-doc-head">
+        <div class="preview-doc-seal"><i class="ti ti-shield-check"></i></div>
+        <div class="preview-doc-head-text">
+          <span class="preview-doc-org">SMKN 2 Pinrang</span>
+          <span class="preview-doc-kind" id="previewKind">Surat</span>
+        </div>
+      </div>
+
       <h3 class="preview-doc-title" id="previewTitle">Perihal surat akan tampil di sini</h3>
       <p class="preview-doc-number" id="previewNumber">Nomor surat</p>
+
+      <div class="preview-doc-divider"></div>
+
       <div class="preview-sign">
         <div class="preview-sign-seal"><i class="ti ti-qrcode"></i></div>
-        <div>
+        <div class="preview-sign-text">
           <strong id="previewSignerName">Nama Penandatangan</strong>
           <span id="previewSignerRole">Jabatan Penandatangan</span>
-          <span id="previewDate">—</span>
+          <span class="preview-sign-date" id="previewDate">—</span>
         </div>
       </div>
     </div>
-    <p class="preview-hint"><i class="ti ti-info-circle"></i> QR Code & kode unik dibuat otomatis setelah disimpan.</p>
+
+    <p class="preview-hint"><i class="ti ti-info-circle"></i> QR Code &amp; kode unik dibuat otomatis setelah disimpan.</p>
   </aside>
 </div>
 
@@ -112,10 +124,12 @@ $selectedJenis = $jenis === 'sertifikat' ? 'sertifikat' : 'surat';
       const nomor = document.getElementById('in-nomor_surat').value.trim();
       previewTitle.textContent = perihal || 'Perihal surat akan tampil di sini';
       previewNumber.textContent = nomor || 'Nomor surat';
+      previewNumber.style.display = 'block';
     } else {
       const nama = document.getElementById('in-nama_sertifikat').value.trim();
       previewTitle.textContent = nama || 'Nama sertifikat akan tampil di sini';
       previewNumber.textContent = '';
+      previewNumber.style.display = 'none';
     }
     document.getElementById('previewSignerName').textContent =
       document.getElementById('in-nama_penandatangan').value.trim() || 'Nama Penandatangan';

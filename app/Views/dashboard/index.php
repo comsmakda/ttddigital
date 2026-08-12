@@ -6,28 +6,28 @@ $items = $result['items'];
 ?>
 
 <div class="stats-grid">
-  <div class="stat-card">
+  <div class="stat-card stat-teal">
     <div class="stat-icon"><i class="ti ti-qrcode"></i></div>
     <div>
       <div class="stat-value"><?= $stats['total'] ?></div>
       <div class="stat-label">Total TTD</div>
     </div>
   </div>
-  <div class="stat-card">
+  <div class="stat-card stat-green">
     <div class="stat-icon green"><i class="ti ti-circle-check"></i></div>
     <div>
       <div class="stat-value"><?= $stats['aktif'] ?></div>
       <div class="stat-label">Aktif</div>
     </div>
   </div>
-  <div class="stat-card">
+  <div class="stat-card stat-red">
     <div class="stat-icon red"><i class="ti ti-ban"></i></div>
     <div>
       <div class="stat-value"><?= $stats['dibatalkan'] ?></div>
       <div class="stat-label">Dibatalkan</div>
     </div>
   </div>
-  <div class="stat-card">
+  <div class="stat-card stat-amber">
     <div class="stat-icon amber"><i class="ti ti-certificate"></i></div>
     <div>
       <div class="stat-value"><?= $stats['sertifikat'] ?></div>
@@ -44,14 +44,14 @@ $items = $result['items'];
     </a>
   </div>
 
-  <form method="GET" action="<?= url('/dashboard') ?>" style="display:flex; gap:.7rem; flex-wrap:wrap; margin-bottom:1.3rem;">
-    <input type="text" name="q" value="<?= e($search) ?>" placeholder="Cari kode, nomor surat, perihal, nama..." class="field-input" style="flex:1; min-width:220px;">
-    <select name="jenis" class="field-select" style="max-width:170px;">
+  <form method="GET" action="<?= url('/dashboard') ?>" class="filter-bar">
+    <input type="text" name="q" value="<?= e($search) ?>" placeholder="Cari kode, nomor surat, perihal, nama..." class="field-input filter-search">
+    <select name="jenis" class="field-select">
       <option value="">Semua Jenis</option>
       <option value="surat" <?= $jenis === 'surat' ? 'selected' : '' ?>>Surat</option>
       <option value="sertifikat" <?= $jenis === 'sertifikat' ? 'selected' : '' ?>>Sertifikat</option>
     </select>
-    <select name="status" class="field-select" style="max-width:170px;">
+    <select name="status" class="field-select">
       <option value="">Semua Status</option>
       <option value="aktif" <?= $status === 'aktif' ? 'selected' : '' ?>>Aktif</option>
       <option value="dibatalkan" <?= $status === 'dibatalkan' ? 'selected' : '' ?>>Dibatalkan</option>
@@ -75,7 +75,7 @@ $items = $result['items'];
             <th>Penandatangan</th>
             <th>Tanggal TTD</th>
             <th>Status</th>
-            <th></th>
+            <th class="col-actions"></th>
           </tr>
         </thead>
         <tbody>
@@ -100,6 +100,12 @@ $items = $result['items'];
                       <button type="submit" class="btn btn-danger btn-sm"><i class="ti ti-ban"></i> Batalkan</button>
                     </form>
                   <?php endif; ?>
+                  <form method="POST" action="<?= url('/ttd/' . $row['id'] . '/hapus') ?>" onsubmit="return confirm('Yakin ingin menghapus TTD ini secara PERMANEN? Data tidak bisa dikembalikan.');">
+                    <?= csrf_field() ?>
+                    <button type="submit" class="btn btn-ghost-danger btn-sm" title="Hapus permanen (mis. salah input)">
+                      <i class="ti ti-trash"></i> Hapus
+                    </button>
+                  </form>
                 </div>
               </td>
             </tr>
