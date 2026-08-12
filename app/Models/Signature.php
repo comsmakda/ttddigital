@@ -143,6 +143,15 @@ class Signature
     }
 
     /**
+     * Hapus permanen baris TTD dari database.
+     */
+    public static function delete(int $id): void
+    {
+        $stmt = Database::connection()->prepare('DELETE FROM signatures WHERE id = ?');
+        $stmt->execute([$id]);
+    }
+
+    /**
      * Buat kode unik yang belum pernah dipakai.
      */
     public static function generateUniqueKode(): string
